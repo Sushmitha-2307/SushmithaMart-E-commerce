@@ -6,12 +6,21 @@ public class DBTest {
 
     public static void main(String[] args) {
 
-        Connection connection = DBConnection.getConnection();
+        try (Connection con = DBConnection.getConnection()) {
 
-        if (connection != null) {
-            System.out.println("Database Connected Successfully!");
-        } else {
-            System.out.println("Database Connection Failed!");
+            if (con != null && !con.isClosed()) {
+                System.out.println("================================");
+                System.out.println("DATABASE CONNECTION SUCCESSFUL");
+                System.out.println("Database: sushmithamart");
+                System.out.println("MySQL: CONNECTED");
+                System.out.println("================================");
+            } else {
+                System.out.println("DATABASE CONNECTION FAILED");
+            }
+
+        } catch (Exception e) {
+            System.out.println("DATABASE CONNECTION FAILED");
+            e.printStackTrace();
         }
     }
 }

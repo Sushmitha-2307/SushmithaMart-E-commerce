@@ -4,9 +4,13 @@ import com.sushmithamart.util.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class OrderDAO {
 
+    // =========================================================
+    // CREATE ORDER
+    // =========================================================
     public boolean createOrder(int userId, double totalAmount) {
 
         String sql =
@@ -26,13 +30,51 @@ public class OrderDAO {
             return rows > 0;
 
         } catch (Exception e) {
+
             e.printStackTrace();
             return false;
         }
     }
 
 
-    public boolean updateOrderStatus(int orderId, String status) {
+    // =========================================================
+    // GET LATEST ORDER ID
+    // =========================================================
+    public int getLatestOrderId(int userId) {
+
+        String sql =
+                "SELECT id FROM orders " +
+                "WHERE user_id = ? " +
+                "ORDER BY id DESC LIMIT 1";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setInt(1, userId);
+
+            try (ResultSet rs = statement.executeQuery()) {
+
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+
+
+    // =========================================================
+    // UPDATE ORDER STATUS
+    // =========================================================
+    public boolean updateOrderStatus(
+            int orderId,
+            String status) {
 
         String sql =
                 "UPDATE orders SET status = ? WHERE id = ?";
@@ -49,6 +91,7 @@ public class OrderDAO {
             return rows > 0;
 
         } catch (Exception e) {
+
             e.printStackTrace();
             return false;
         }

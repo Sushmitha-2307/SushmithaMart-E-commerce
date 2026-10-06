@@ -19,16 +19,23 @@ public class CartServlet extends HttpServlet {
 
     private CartService cartService = new CartService();
 
+    // =========================================================
+    // POST
+    // ADD / REMOVE / UPDATE CART
+    // =========================================================
     @Override
-    protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response)
+    protected void doPost(
+            HttpServletRequest request,
+            HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
 
         // User login check
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect(
+                    request.getContextPath() + "/login.jsp"
+            );
             return;
         }
 
@@ -39,42 +46,61 @@ public class CartServlet extends HttpServlet {
         String productIdParam = request.getParameter("productId");
         String quantityParam = request.getParameter("quantity");
 
-        // Check required values
-        if (action == null || productIdParam == null || quantityParam == null) {
-            response.sendRedirect("cart");
+        // Required values check
+        if (action == null || productIdParam == null) {
+            response.sendRedirect(
+                    request.getContextPath() + "/cart"
+            );
             return;
         }
 
         try {
 
             int productId = Integer.parseInt(productIdParam);
-            int quantity = Integer.parseInt(quantityParam);
+
+            int quantity = 1;
+
+            if (quantityParam != null && !quantityParam.trim().isEmpty()) {
+                quantity = Integer.parseInt(quantityParam);
+            }
 
             boolean result = false;
 
+            // =================================================
             // ADD PRODUCT
-            if ("add".equals(action)) {
+            // =================================================
+            if ("add".equalsIgnoreCase(action)) {
+
+                if (quantity <= 0) {
+                    quantity = 1;
+                }
 
                 result = cartService.addToCart(
                         userId,
                         productId,
                         quantity
                 );
-
             }
 
+            // =================================================
             // REMOVE PRODUCT
-            else if ("remove".equals(action)) {
+            // =================================================
+            else if ("remove".equalsIgnoreCase(action)) {
 
                 result = cartService.removeFromCart(
                         userId,
                         productId
                 );
-
             }
 
+            // =================================================
             // UPDATE QUANTITY
-            else if ("update".equals(action)) {
+            // =================================================
+            else if ("update".equalsIgnoreCase(action)) {
+
+                if (quantity <= 0) {
+                    quantity = 1;
+                }
 
                 result = cartService.updateQuantity(
                         userId,
@@ -83,26 +109,41 @@ public class CartServlet extends HttpServlet {
                 );
             }
 
-            // After action → Cart page
-            response.sendRedirect("cart");
+            // =================================================
+            // AFTER CART ACTION
+            // =================================================
+            response.sendRedirect(
+                    request.getContextPath() + "/cart"
+            );
 
         } catch (NumberFormatException e) {
 
-            response.sendRedirect("cart");
+            response.sendRedirect(
+                    request.getContextPath() + "/cart"
+            );
         }
     }
 
 
+    // =========================================================
+    // GET
+    // OPEN CART PAGE
+    // =========================================================
     @Override
-    protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response)
+    protected void doGet(
+            HttpServletRequest request,
+            HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
 
         // User login check
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login.jsp");
+
+            response.sendRedirect(
+                    request.getContextPath() + "/login.jsp"
+            );
+
             return;
         }
 
@@ -116,7 +157,8 @@ public class CartServlet extends HttpServlet {
         );
 
         // Open cart.jsp
-        request.getRequestDispatcher("cart.jsp")
-               .forward(request, response);
+        request.getRequestDispatcher(
+                "/cart.jsp"
+        ).forward(request, response);
     }
 }

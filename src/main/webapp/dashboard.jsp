@@ -7,6 +7,14 @@
         response.sendRedirect("login.jsp");
         return;
     }
+
+    String userName = user.getName();
+
+    String firstLetter = "";
+
+    if (userName != null && !userName.trim().isEmpty()) {
+        firstLetter = userName.trim().substring(0, 1).toUpperCase();
+    }
 %>
 
 <!DOCTYPE html>
@@ -16,7 +24,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>SushmithaMart - Dashboard</title>
+    <title>SushmithaMart - Home</title>
 
     <style>
 
@@ -31,10 +39,12 @@
             color: #17233f;
         }
 
+        /* NAVBAR */
+
         .navbar {
             background: #16233f;
             color: white;
-            padding: 16px 30px;
+            padding: 14px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -49,25 +59,95 @@
             color: #e8a33d;
         }
 
-        .logout {
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-link {
             color: white;
             text-decoration: none;
             font-weight: bold;
         }
 
-        .logout:hover {
+        .nav-link:hover {
             color: #e8a33d;
         }
 
+        /* PROFILE */
+
+        .profile-container {
+            position: relative;
+        }
+
+        .profile-button {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: #e8a33d;
+            color: #16233f;
+            font-size: 19px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-button:hover {
+            background: white;
+        }
+
+        .profile-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 52px;
+            width: 190px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.18);
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .profile-menu.show {
+            display: block;
+        }
+
+        .profile-name {
+            padding: 15px;
+            font-weight: bold;
+            color: #16233f;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .profile-menu a {
+            display: block;
+            padding: 13px 15px;
+            text-decoration: none;
+            color: #17233f;
+            font-weight: 500;
+        }
+
+        .profile-menu a:hover {
+            background: #f5f7fb;
+            color: #e8a33d;
+        }
+
+        /* MAIN */
+
         .container {
             max-width: 1100px;
-            margin: 50px auto;
+            margin: 45px auto;
             padding: 20px;
         }
 
         .welcome {
             background: white;
-            padding: 30px;
+            padding: 35px;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             margin-bottom: 25px;
@@ -82,6 +162,8 @@
             color: #68738a;
             font-size: 16px;
         }
+
+        /* CARDS */
 
         .buttons {
             display: grid;
@@ -122,10 +204,39 @@
             color: #16233f;
         }
 
+        /* MOBILE */
+
         @media (max-width: 700px) {
+
+            .navbar {
+                padding: 12px 15px;
+            }
+
+            .logo {
+                font-size: 21px;
+            }
+
+            .nav-right {
+                gap: 12px;
+            }
+
+            .nav-link {
+                font-size: 14px;
+            }
+
             .buttons {
                 grid-template-columns: 1fr;
             }
+
+            .container {
+                margin: 25px auto;
+                padding: 15px;
+            }
+
+            .welcome {
+                padding: 25px;
+            }
+
         }
 
     </style>
@@ -134,17 +245,67 @@
 
 <body>
 
+    <!-- NAVBAR -->
+
     <div class="navbar">
 
         <div class="logo">
             Sushmitha<span>Mart</span>
         </div>
 
-        <a class="logout" href="login.jsp">
-            Logout
-        </a>
+        <div class="nav-right">
+
+            <a class="nav-link" href="products.jsp">
+                Products
+            </a>
+
+            <a class="nav-link" href="cart">
+                Cart
+            </a>
+
+            <a class="nav-link" href="orders.jsp">
+                Orders
+            </a>
+
+            <!-- PROFILE -->
+
+            <div class="profile-container">
+
+                <button
+                    class="profile-button"
+                    type="button"
+                    onclick="toggleProfile()">
+
+                    <%= firstLetter %>
+
+                </button>
+
+                <div
+                    class="profile-menu"
+                    id="profileMenu">
+
+                    <div class="profile-name">
+                        <%= userName %>
+                    </div>
+
+                    <a href="#">
+                        Language
+                    </a>
+
+                    <a href="login.jsp">
+                        Logout
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
+
+
+    <!-- MAIN CONTENT -->
 
     <div class="container">
 
@@ -155,20 +316,25 @@
             </h1>
 
             <p>
-                Hello, <strong><%= user.getName() %></strong>
+                Hello, <strong><%= userName %></strong>
             </p>
 
             <p>
-                You have successfully logged in.
+                Explore products, manage your cart and view your orders.
             </p>
 
         </div>
+
+
+        <!-- NORMAL SHOPPING OPTIONS -->
 
         <div class="buttons">
 
             <div class="card">
 
-                <h2>Products</h2>
+                <h2>
+                    Products
+                </h2>
 
                 <p>
                     Browse all available products.
@@ -180,9 +346,12 @@
 
             </div>
 
+
             <div class="card">
 
-                <h2>Cart</h2>
+                <h2>
+                    Cart
+                </h2>
 
                 <p>
                     View your shopping cart.
@@ -194,9 +363,12 @@
 
             </div>
 
+
             <div class="card">
 
-                <h2>Orders</h2>
+                <h2>
+                    Orders
+                </h2>
 
                 <p>
                     View your previous orders.
@@ -211,6 +383,35 @@
         </div>
 
     </div>
+
+
+    <script>
+
+        function toggleProfile() {
+
+            const menu = document.getElementById("profileMenu");
+
+            menu.classList.toggle("show");
+        }
+
+
+        document.addEventListener("click", function(event) {
+
+            const profileContainer =
+                document.querySelector(".profile-container");
+
+            const profileMenu =
+                document.getElementById("profileMenu");
+
+            if (!profileContainer.contains(event.target)) {
+
+                profileMenu.classList.remove("show");
+
+            }
+
+        });
+
+    </script>
 
 </body>
 </html>

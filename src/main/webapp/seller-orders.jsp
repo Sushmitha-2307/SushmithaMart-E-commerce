@@ -1,45 +1,24 @@
-<%@ page import="com.sushmithamart.model.User" %>
-<%@ page import="com.sushmithamart.util.DBConnection" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
-<%@ page contentType="text/html;charset=UTF-8" %>
-
-<%
-    User user = (User) session.getAttribute("user");
-
-    if (user == null) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
-
-    if (!"SELLER".equalsIgnoreCase(user.getRole())) {
-        response.sendRedirect("dashboard.jsp");
-        return;
-    }
-%>
+<%@ page import="com.sushmithamart.model.OrderItem" %>
+<%@ page import="com.sushmithamart.model.User" %>
+<%@ page import="com.sushmithamart.util.DBConnection" %>
 
 <!DOCTYPE html>
 <html>
-
 <head>
-
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>SushmithaMart - Seller Orders</title>
 
     <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
             background: #f5f7fb;
             color: #17233f;
+            margin: 0;
         }
 
         .navbar {
@@ -60,97 +39,105 @@
             color: #e8a33d;
         }
 
-        .back {
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
             color: white;
             text-decoration: none;
             font-weight: bold;
         }
 
+        .nav-links a:hover {
+            color: #e8a33d;
+        }
+
         .container {
             width: 92%;
             max-width: 1100px;
-            margin: 45px auto;
+            margin: 35px auto;
         }
 
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        .title {
             margin-bottom: 25px;
         }
 
-        .header h1 {
-            margin: 0 0 10px;
-        }
-
-        .header p {
-            color: #68738a;
-        }
-
-        .order {
+        .empty {
             background: white;
-            padding: 25px;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .order-card {
+            background: white;
+            padding: 22px;
             margin-bottom: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         }
 
         .order-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 12px;
             margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e1e5eb;
         }
 
         .order-id {
+            font-size: 19px;
             font-weight: bold;
-            font-size: 18px;
         }
 
         .status {
-            color: #16233f;
+            padding: 7px 13px;
+            border-radius: 20px;
+            background: #eaf2ff;
+            color: #162f63;
+            font-size: 13px;
             font-weight: bold;
         }
 
-        .item {
-            padding: 12px 0;
-            border-bottom: 1px solid #eef0f4;
-        }
-
-        .item:last-child {
-            border-bottom: none;
-        }
-
-        .item-name {
+        .product-name {
+            font-size: 18px;
             font-weight: bold;
+            margin-bottom: 8px;
         }
 
-        .item-details {
+        .details {
             color: #68738a;
-            margin-top: 5px;
+            line-height: 1.8;
+            margin-bottom: 10px;
         }
 
-        .empty {
-            background: white;
-            padding: 45px;
-            text-align: center;
-            border-radius: 15px;
-            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
-        }
-
-        .total {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #dfe3ea;
-            font-size: 19px;
+        .price {
+            font-size: 16px;
             font-weight: bold;
-            text-align: right;
+            color: #162f63;
+            margin-top: 10px;
         }
 
-    </style>
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #16233f;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
 
+        .back-btn:hover {
+            background: #e8a33d;
+        }
+    </style>
 </head>
 
 <body>
@@ -161,152 +148,131 @@
         Sushmitha<span>Mart</span>
     </div>
 
-    <a href="seller-dashboard.jsp" class="back">
-        Back to Dashboard
+    <div class="nav-links">
+        <a href="seller-dashboard.jsp">Dashboard</a>
+        <a href="seller-products.jsp">Products</a>
+        <a href="seller-orders.jsp">Orders</a>
+    </div>
+
+</div>
+
+<div class="container">
+
+    <h1 class="title">Seller Orders</h1>
+
+    <%
+        User loggedSeller = (User) session.getAttribute("user");
+
+        if (loggedSeller == null) {
+            response.sendRedirect("sellerLogin.jsp");
+            return;
+        }
+
+        int sellerId = loggedSeller.getId();
+
+        List<OrderItem> sellerOrderItems = new ArrayList<>();
+
+        String sql =
+            "SELECT oi.id, oi.order_id, oi.product_id, oi.quantity, oi.price, " +
+            "COALESCE(oi.seller_id, p.seller_id) AS seller_id " +
+            "FROM order_items oi " +
+            "INNER JOIN products p ON oi.product_id = p.id " +
+            "WHERE p.seller_id = ? AND oi.seller_id = ? " +
+            "ORDER BY oi.id DESC";
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+
+            ps.setInt(1, sellerId);
+            ps.setInt(2, sellerId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+
+                    OrderItem item = new OrderItem();
+
+                    item.setId(rs.getInt("id"));
+                    item.setOrderId(rs.getInt("order_id"));
+                    item.setProductId(rs.getInt("product_id"));
+                    item.setQuantity(rs.getInt("quantity"));
+                    item.setPrice(rs.getDouble("price"));
+                    item.setSellerId(rs.getInt("seller_id"));
+
+                    sellerOrderItems.add(item);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (sellerOrderItems.isEmpty()) {
+    %>
+
+        <div class="empty">
+            No orders found for your products.
+        </div>
+
+    <%
+        } else {
+
+            for (OrderItem item : sellerOrderItems) {
+    %>
+
+        <div class="order-card">
+
+            <div class="order-header">
+
+                <div class="order-id">
+                    Order ID: <%= item.getOrderId() %>
+                </div>
+
+                <div class="status">
+                    Completed
+                </div>
+
+            </div>
+
+            <div class="product-name">
+                Product ID: <%= item.getProductId() %>
+            </div>
+
+            <div class="details">
+
+                <strong>Quantity:</strong>
+                <%= item.getQuantity() %>
+                <br>
+
+                <strong>Item Price:</strong>
+                Rs<%= String.format("%.2f", item.getPrice()) %>
+
+            </div>
+
+            <div class="price">
+
+                <strong>Total for item:</strong>
+                Rs<%= String.format(
+                    "%.2f",
+                    item.getPrice() * item.getQuantity()
+                ) %>
+
+            </div>
+
+        </div>
+
+    <%
+            }
+        }
+    %>
+
+    <a href="seller-dashboard.jsp" class="back-btn">
+        &larr; Back to Dashboard
     </a>
 
 </div>
 
-
-<div class="container">
-
-    <div class="header">
-
-        <h1>Seller Orders</h1>
-
-        <p>
-            Orders containing your products
-        </p>
-
-    </div>
-
-
-<%
-    boolean hasOrders = false;
-
-    String sql =
-        "SELECT o.id AS order_id, " +
-        "o.total_amount, o.status, " +
-        "p.name AS product_name, " +
-        "oi.quantity, oi.price " +
-        "FROM orders o " +
-        "JOIN order_items oi ON o.id = oi.order_id " +
-        "JOIN products p ON oi.product_id = p.id " +
-        "WHERE p.seller_id = ? " +
-        "ORDER BY o.id DESC";
-
-    try (
-        Connection con = DBConnection.getConnection();
-        PreparedStatement ps = con.prepareStatement(sql)
-    ) {
-
-        ps.setInt(1, user.getId());
-
-        ResultSet rs = ps.executeQuery();
-
-        int currentOrderId = -1;
-
-        while (rs.next()) {
-
-            hasOrders = true;
-
-            int orderId = rs.getInt("order_id");
-
-            if (orderId != currentOrderId) {
-
-                if (currentOrderId != -1) {
-%>
-                    <div class="total">
-                        Order Total: ₹<%= rs.getDouble("total_amount") %>
-                    </div>
-
-                    </div>
-<%
-                }
-
-                currentOrderId = orderId;
-%>
-
-                <div class="order">
-
-                    <div class="order-header">
-
-                        <div class="order-id">
-                            Order #<%= orderId %>
-                        </div>
-
-                        <div class="status">
-                            <%= rs.getString("status") %>
-                        </div>
-
-                    </div>
-
-<%
-            }
-%>
-
-                    <div class="item">
-
-                        <div class="item-name">
-                            <%= rs.getString("product_name") %>
-                        </div>
-
-                        <div class="item-details">
-                            Quantity: <%= rs.getInt("quantity") %>
-                            &nbsp; | &nbsp;
-                            Price: ₹<%= rs.getDouble("price") %>
-                        </div>
-
-                    </div>
-
-<%
-        }
-
-        if (currentOrderId != -1) {
-%>
-
-                </div>
-
-<%
-        }
-
-        if (!hasOrders) {
-%>
-
-            <div class="empty">
-
-                <h2>No Orders Yet</h2>
-
-                <p>
-                    You have not received any orders for your products.
-                </p>
-
-            </div>
-
-<%
-        }
-
-    } catch (Exception e) {
-
-        e.printStackTrace();
-%>
-
-        <div class="empty">
-
-            <h2>Unable to Load Orders</h2>
-
-            <p>
-                Please try again later.
-            </p>
-
-        </div>
-
-<%
-    }
-%>
-
-</div>
-
 </body>
-
 </html>

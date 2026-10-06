@@ -1,40 +1,53 @@
 package com.sushmithamart.controller;
 
-import com.sushmithamart.service.OrderItemService;
-
+import java.io.IOException;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import com.sushmithamart.dao.OrderItemDAO;
+import com.sushmithamart.model.OrderItem;
+import com.sushmithamart.model.Seller;
 
-import java.io.IOException;
-
-@WebServlet("/order-item")
+@WebServlet("/orderItem")
 public class OrderItemServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private OrderItemDAO orderItemDAO;
 
-    private OrderItemService orderItemService = new OrderItemService();
+    public void init() {
+        orderItemDAO = new OrderItemDAO();
+    }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int orderId = Integer.parseInt(request.getParameter("orderId"));
         int productId = Integer.parseInt(request.getParameter("productId"));
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         double price = Double.parseDouble(request.getParameter("price"));
+        int sellerId = Integer.parseInt(request.getParameter("sellerId"));
 
-        boolean result = orderItemService.addOrderItem(
-                orderId,
-                productId,
-                quantity,
-                price
-        );
+        boolean isAdded = orderItemDAO.addOrderItem(orderId, productId, quantity, price, sellerId);
 
-        if (result) {
-            response.sendRedirect("buyer/dashboard.jsp?success=Order Item Added");
+        if (isAdded) {
+            response.sendRedirect("orderSuccess.jsp");
         } else {
-            response.sendRedirect("cart.jsp?error=Failed");
+            response.sendRedirect("orderError.jsp");
+        }
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        Seller seller = (Seller) session.getAttribute("loggedSeller");
+
+        if (seller != null) {
+            int sellerId = seller.getId();
+            List<OrderItem> sellerOrderItems = orderItemDAO.getOrderItemsBySeller(sellerId);
+            request.setAttribute("sellerOrderItems", sellerOrderItems);
+            request.getRequestDispatcher("sellerDashboard.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("sellerLogin.jsp");
         }
     }
 }

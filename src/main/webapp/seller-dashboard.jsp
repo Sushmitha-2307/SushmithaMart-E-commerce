@@ -36,6 +36,7 @@
             background: #16233f;
             color: white;
             padding: 16px 30px;
+
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -50,92 +51,117 @@
             color: #e8a33d;
         }
 
-        .logout {
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
             color: white;
             text-decoration: none;
             font-weight: bold;
         }
 
-        .logout:hover {
+        .nav-links a:hover {
             color: #e8a33d;
         }
 
         .container {
             width: 92%;
-            max-width: 1100px;
-            margin: 45px auto;
+            max-width: 1150px;
+            margin: 40px auto;
         }
 
         .welcome {
             background: white;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 16px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .welcome h1 {
-            margin-top: 0;
-            color: #16233f;
+            margin: 0 0 10px;
         }
 
         .welcome p {
             color: #68738a;
-            font-size: 16px;
+            margin: 0;
         }
 
         .cards {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            grid-template-columns:
+                repeat(auto-fit, minmax(260px, 1fr));
+
+            gap: 22px;
         }
 
         .card {
             background: white;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             text-align: center;
-            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+        }
+
+        .icon {
+            font-size: 42px;
+            margin-bottom: 15px;
         }
 
         .card h2 {
-            color: #16233f;
-            margin-top: 0;
+            margin: 0 0 10px;
         }
 
         .card p {
             color: #68738a;
+            min-height: 45px;
         }
 
-        .card a {
+        .btn {
             display: inline-block;
             margin-top: 15px;
-            padding: 12px 25px;
+            padding: 12px 22px;
+            border-radius: 7px;
+
             background: #162f63;
             color: white;
+
             text-decoration: none;
-            border-radius: 7px;
             font-weight: bold;
         }
 
-        .card a:hover {
+        .btn:hover {
             background: #e8a33d;
             color: #16233f;
         }
 
-        @media (max-width: 700px) {
+        .add-btn {
+            background: #e8a33d;
+            color: #16233f;
+        }
 
-            .cards {
-                grid-template-columns: 1fr;
-            }
+        .add-btn:hover {
+            background: #16233f;
+            color: white;
+        }
+
+        @media (max-width: 700px) {
 
             .navbar {
                 padding: 15px;
             }
 
+            .nav-links {
+                gap: 10px;
+                font-size: 13px;
+            }
+
             .container {
                 width: 95%;
             }
+
         }
 
     </style>
@@ -144,33 +170,43 @@
 
 <body>
 
+
 <div class="navbar">
 
     <div class="logo">
         Sushmitha<span>Mart</span>
     </div>
 
-    <a class="logout" href="login.jsp">
-        Logout
-    </a>
+    <div class="nav-links">
+
+        <a href="seller-dashboard.jsp">
+            Dashboard
+        </a>
+
+        <a href="seller-products">
+            Products
+        </a>
+
+        <a href="seller-orders.jsp">
+            Orders
+        </a>
+
+    </div>
 
 </div>
 
 
 <div class="container">
 
+
     <div class="welcome">
 
         <h1>
-            Seller Dashboard
+            Welcome, Seller!
         </h1>
 
         <p>
-            Hello, <strong><%= user.getName() %></strong>
-        </p>
-
-        <p>
-            Welcome to your SushmithaMart seller account.
+            Manage your products and seller orders from here.
         </p>
 
     </div>
@@ -178,49 +214,84 @@
 
     <div class="cards">
 
+
+        <!-- PRODUCTS -->
+
         <div class="card">
 
-            <h2>Products</h2>
+            <div class="icon">
+                📦
+            </div>
+
+            <h2>
+                My Products
+            </h2>
 
             <p>
-                Add and manage your products.
+                View and manage all your products.
             </p>
 
-            <a href="seller-products.jsp">
-                Manage Products
+            <a href="seller-products"
+               class="btn">
+
+                View Products
+
             </a>
 
         </div>
 
 
+        <!-- ADD PRODUCT -->
+
         <div class="card">
 
-            <h2>Add Product</h2>
+            <div class="icon">
+                ➕
+            </div>
+
+            <h2>
+                Add Product
+            </h2>
 
             <p>
                 Add a new product to your store.
             </p>
 
-            <a href="add-product.jsp">
+            <a href="add-product.jsp"
+               class="btn add-btn">
+
                 Add Product
+
             </a>
 
         </div>
 
+
+        <!-- ORDERS -->
 
         <div class="card">
 
-            <h2>Orders</h2>
+            <div class="icon">
+                🛒
+            </div>
+
+            <h2>
+                Seller Orders
+            </h2>
 
             <p>
-                View orders received from buyers.
+                View orders containing your products.
             </p>
 
-            <a href="seller-orders.jsp">
+            <a href="seller-orders.jsp"
+               class="btn">
+
                 View Orders
+
             </a>
 
         </div>
+
 
     </div>
 

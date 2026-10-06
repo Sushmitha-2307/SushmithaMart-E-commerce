@@ -171,10 +171,16 @@
             color: #16233f;
         }
 
+        .checkout-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
         .checkout {
             display: block;
             width: 220px;
-            margin: 25px 0 0 auto;
             padding: 13px;
             text-align: center;
             background: #e8a33d;
@@ -187,6 +193,16 @@
         .checkout:hover {
             background: #16233f;
             color: white;
+        }
+
+        .continue-shopping {
+            background: #162f63;
+            color: white;
+        }
+
+        .continue-shopping:hover {
+            background: #e8a33d;
+            color: #16233f;
         }
 
         @media (max-width: 700px) {
@@ -219,6 +235,10 @@
 
             .quantity {
                 margin-right: 5px;
+            }
+
+            .checkout-actions {
+                flex-direction: column;
             }
 
             .checkout {
@@ -349,9 +369,19 @@
             Total: ₹<%= String.format("%.2f", total) %>
         </div>
 
-        <a href="checkout.jsp" class="checkout">
-            Proceed to Checkout
-        </a>
+        <div class="checkout-actions">
+
+            <a href="products.jsp"
+               class="checkout continue-shopping">
+                Continue Shopping
+            </a>
+
+            <a href="checkout.jsp"
+               class="checkout">
+                Proceed to Checkout
+            </a>
+
+        </div>
 
 <%
     }

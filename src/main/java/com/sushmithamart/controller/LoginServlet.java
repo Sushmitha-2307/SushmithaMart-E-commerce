@@ -32,27 +32,39 @@ public class LoginServlet extends HttpServlet {
         if (user != null) {
 
             HttpSession session = request.getSession(true);
+
             session.setAttribute("user", user);
 
             String userRole = user.getRole();
-            System.out.println("LOGIN ROLE=["+userRole+"]");
 
+            System.out.println("LOGIN ROLE=[" + userRole + "]");
+
+            // SELLER
             if ("SELLER".equalsIgnoreCase(userRole)) {
 
                 response.sendRedirect(
-                    request.getContextPath() + "/seller-dashboard.jsp"
+                    request.getContextPath()
+                    + "/seller-dashboard.jsp"
                 );
 
-            } else if ("ADMIN".equalsIgnoreCase(userRole)) {
+            }
+
+            // ADMIN
+            else if ("ADMIN".equalsIgnoreCase(userRole)) {
 
                 response.sendRedirect(
-                    request.getContextPath() + "/admin-dashboard.jsp"
+                    request.getContextPath()
+                    + "/admin-dashboard.jsp"
                 );
 
-            } else {
+            }
+
+            // BUYER
+            else {
 
                 response.sendRedirect(
-                    request.getContextPath() + "/dashboard.jsp"
+                    request.getContextPath()
+                    + "/home.jsp"
                 );
             }
 

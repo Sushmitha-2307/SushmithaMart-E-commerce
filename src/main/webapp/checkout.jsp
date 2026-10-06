@@ -157,6 +157,13 @@
             border-top: 1px solid #dfe3ea;
         }
 
+        .payment select {
+            padding: 10px;
+            border: 1px solid #ccd2dc;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
         .total {
             display: flex;
             justify-content: space-between;
@@ -335,9 +342,27 @@
 
                     <div class="payment">
 
-                        <strong>Payment</strong>
+                        <strong>Payment Method</strong>
 
-                        <span>Cash on Delivery</span>
+                        <select name="paymentMethod" required>
+
+                            <option value="COD">
+                                Cash on Delivery
+                            </option>
+
+                            <option value="UPI">
+                                UPI
+                            </option>
+
+                            <option value="CARD">
+                                Credit / Debit Card
+                            </option>
+
+                            <option value="NETBANKING">
+                                Net Banking
+                            </option>
+
+                        </select>
 
                     </div>
 

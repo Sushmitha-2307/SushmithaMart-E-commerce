@@ -1,22 +1,24 @@
 package com.sushmithamart.model;
 
 public class OrderItem {
-
+    
     private int id;
     private int orderId;
     private int productId;
     private int quantity;
     private double price;
+    private int sellerId;
 
     public OrderItem() {
     }
 
-    public OrderItem(int id, int orderId, int productId, int quantity, double price) {
+    public OrderItem(int id, int orderId, int productId, int quantity, double price, int sellerId) {
         this.id = id;
         this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;
         this.price = price;
+        this.sellerId = sellerId;
     }
 
     public int getId() {
@@ -57,5 +59,13 @@ public class OrderItem {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public int getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(int sellerId) {
+        this.sellerId = sellerId;
     }
 }
