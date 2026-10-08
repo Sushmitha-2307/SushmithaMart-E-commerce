@@ -987,7 +987,7 @@ function clearProductFilter() {
 
 function getProductImage(name) {
 
-    name = name.toLowerCase().trim();
+    name = name.toLowerCase();
 
 
     if (name.includes("bluetooth speaker"))
@@ -1058,25 +1058,15 @@ function getProductImage(name) {
         return "https://cdn.phototourl.com/free/2026-09-20-09355d7d-ba3d-41be-8124-af4badee1ced.jpg";
 
 
-    if (
-        name.includes("paper clip")
-        ||
-        name.includes("paper clips")
-        ||
-        name === "clips"
-    )
+    if (name.includes("paper clip"))
         return "https://cdn.phototourl.com/free/2026-09-20-a9b790aa-7d3b-4dad-851c-e1657b64a312.jpg";
 
 
-    if (name.includes("highlighter"))
+    if (name.includes("highlighter set"))
         return "https://cdn.phototourl.com/member/2026-09-20-0a8650ec-5815-424e-90c8-b52b3048742b.jpg";
 
 
-    if (
-        name.includes("kids pen set")
-        ||
-        name.includes("pen set")
-    )
+    if (name.includes("kids pen set"))
         return "https://cdn.phototourl.com/member/2026-09-20-e35f6240-4be0-490d-95fb-6f512a345d91.jpg";
 
 
@@ -1208,16 +1198,8 @@ function getProductImage(name) {
         return "https://cdn.phototourl.com/free/2026-09-20-7253be25-0f66-46ce-a698-26b4816756a9.jpg";
 
 
-    if (
-        name.includes("comb set")
-        ||
-        name.includes("combo set")
-    )
+    if (name.includes("comb set"))
         return "https://cdn.phototourl.com/member/2026-09-20-f5860e8a-c126-4a25-ac56-4cc928bc7f32.jpg";
-
-
-    if (name.includes("sunglasses"))
-        return "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80";
 
 
     if (name.includes("sunglasses case"))
@@ -1248,19 +1230,7 @@ function getProductImage(name) {
         return "https://cdn.phototourl.com/member/2026-09-21-f822023a-b20e-47dc-afa6-2104ab6b9c78.jpg";
 
 
-    /*
-     * FINAL FALLBACK
-     *
-     * Uses product name so products without
-     * a specific mapping don't show the
-     * smartwatch image.
-     */
-
-    return "https://loremflickr.com/600/600/"
-        + encodeURIComponent(
-            name.replace(/\s+/g, ",")
-        )
-        + "?lock=1";
+    return "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80";
 }
 
 
@@ -1292,28 +1262,8 @@ function useMappedImage(image) {
     );
 
 
-    const mappedImage =
+    image.src =
         getProductImage(productName);
-
-
-    image.onerror = function() {
-
-        image.onerror = null;
-
-        image.src =
-            "https://loremflickr.com/600/600/"
-            + encodeURIComponent(
-                productName
-                    .toLowerCase()
-                    .trim()
-                    .replace(/\s+/g, ",")
-            )
-            + "?lock=2";
-
-    };
-
-
-    image.src = mappedImage;
 }
 
 </script>
