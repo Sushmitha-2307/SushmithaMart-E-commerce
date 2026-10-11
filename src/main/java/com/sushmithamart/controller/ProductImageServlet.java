@@ -11,21 +11,36 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @WebServlet("/product-image")
 public class ProductImageServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String IMAGE_DIR =
-            "C:" + File.separator +
-            "sushmithamart" + File.separator +
-            "uploads" + File.separator +
-            "products";
+    private String getImageDirectory() {
+        String configuredPath = System.getenv("PRODUCT_UPLOAD_DIR");
+
+        if (configuredPath != null && !configuredPath.trim().isEmpty()) {
+            return configuredPath.trim();
+        }
+
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            return "C:" + File.separator
+                    + "sushmithamart" + File.separator
+                    + "uploads" + File.separator
+                    + "products";
+        }
+
+        return "/app/uploads/products";
+    }
 
     @Override
-    protected void doGet(HttpServletRequest request,
-                          HttpServletResponse response)
+    protected void doGet(
+            HttpServletRequest request,
+            HttpServletResponse response)
             throws ServletException, IOException {
 
         String fileName = request.getParameter("file");
@@ -38,12 +53,23 @@ public class ProductImageServlet extends HttpServlet {
             return;
         }
 
-        // Security: filename மட்டும் எடுத்துக்கொள்கிறது
-        fileName = new File(fileName).getName();
+        fileName = fileName.trim();
 
-        File imageFile = new File(IMAGE_DIR, fileName);
+        // Accept only a filename, not a directory path.
+        if (fileName.contains("/") || fileName.contains("\\")
+                || fileName.equals(".") || fileName.equals("..")) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
-        if (!imageFile.exists() || !imageFile.isFile()) {
+        Path imageDirectory = Paths.get(getImageDirectory())
+                .toAbsolutePath().normalize();
+
+        Path imagePath = imageDirectory.resolve(fileName).normalize();
+
+        if (!imagePath.startsWith(imageDirectory)
+                || !Files.isRegularFile(imagePath)
+                || !Files.isReadable(imagePath)) {
             response.sendError(
                     HttpServletResponse.SC_NOT_FOUND,
                     "Image not found."
@@ -51,24 +77,28 @@ public class ProductImageServlet extends HttpServlet {
             return;
         }
 
+        File imageFile = imagePath.toFile();
+
         String contentType =
                 getServletContext().getMimeType(imageFile.getName());
 
-        if (contentType == null) {
-            contentType = "application/octet-stream";
+        if (contentType == null ||
+                !contentType.startsWith("image/")) {
+            response.sendError(
+                    HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
+            );
+            return;
         }
 
         response.setContentType(contentType);
         response.setContentLengthLong(imageFile.length());
+        response.setHeader("Cache-Control", "public, max-age=86400");
+        response.setHeader("X-Content-Type-Options", "nosniff");
 
         try (
-            InputStream inputStream =
-                    new FileInputStream(imageFile);
-
-            OutputStream outputStream =
-                    response.getOutputStream()
+                InputStream inputStream = new FileInputStream(imageFile);
+                OutputStream outputStream = response.getOutputStream()
         ) {
-
             byte[] buffer = new byte[8192];
             int bytesRead;
 
